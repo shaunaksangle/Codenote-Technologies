@@ -1,4 +1,4 @@
-const header = document.querySelector("[data-header]");
+﻿const header = document.querySelector("[data-header]");
 const nav = document.querySelector("[data-nav]");
 const navToggle = document.querySelector("[data-nav-toggle]");
 const form = document.querySelector("[data-contact-form]");
@@ -49,7 +49,7 @@ const revealObserver = new IntersectionObserver(
       }
     });
   },
-  { threshold: 0.16 }
+  { threshold: 0.08, rootMargin: "0px 0px -8% 0px" }
 );
 
 document.querySelectorAll(".reveal").forEach((element) => {
@@ -91,7 +91,7 @@ const clearFormErrors = () => {
 };
 
 const addFieldError = (field, message) => {
-  const label = field.closest("label");
+  const label = field?.closest("label");
   if (!label) return;
   label.classList.add("has-error");
   const error = document.createElement("span");
@@ -100,20 +100,20 @@ const addFieldError = (field, message) => {
   label.appendChild(error);
 };
 
+const getFieldValue = (data, fieldName) => String(data.get(fieldName) || "").trim();
+
 const validateContactForm = () => {
   clearFormErrors();
   const data = new FormData(form);
   const fields = {
     name: form.elements.name,
     email: form.elements.email,
-    company: form.elements.company,
     phone: form.elements.phone,
-    requirement: form.elements.requirement,
     message: form.elements.message
   };
   let isValid = true;
 
-  if (String(data.get("name") || "").trim().length < 2) {
+  if (getFieldValue(data, "name").length < 2) {
     addFieldError(fields.name, "Please enter your full name.");
     isValid = false;
   }
@@ -123,28 +123,38 @@ const validateContactForm = () => {
     isValid = false;
   }
 
-  if (String(data.get("company") || "").trim().length < 2) {
-    addFieldError(fields.company, "Please enter your company name.");
-    isValid = false;
-  }
-
-  if (data.get("phone") && !fields.phone.validity.valid) {
+  if (getFieldValue(data, "phone") && !fields.phone.validity.valid) {
     addFieldError(fields.phone, "Please enter a valid phone number.");
     isValid = false;
   }
 
-  if (!data.get("requirement")) {
-    addFieldError(fields.requirement, "Please select a focus area.");
-    isValid = false;
-  }
-
-  if (String(data.get("message") || "").trim().length < 10) {
-    addFieldError(fields.message, "Please add a short requirement summary.");
+  if (!getFieldValue(data, "message")) {
+    addFieldError(fields.message, "Please add a short message.");
     isValid = false;
   }
 
   return isValid;
 };
+
+const setFormSubmitting = (isSubmitting) => {
+  const submitButton = form.querySelector('button[type="submit"]');
+  if (!submitButton) return;
+  if (!submitButton.dataset.defaultText) {
+    submitButton.dataset.defaultText = submitButton.textContent;
+  }
+  submitButton.disabled = isSubmitting;
+  submitButton.textContent = isSubmitting ? "Sending..." : submitButton.dataset.defaultText;
+};
+
+const buildContactPayload = (data) => ({
+  name: getFieldValue(data, "name"),
+  email: getFieldValue(data, "email"),
+  phone: getFieldValue(data, "phone"),
+  company: getFieldValue(data, "company"),
+  requirement: getFieldValue(data, "requirement"),
+  message: getFieldValue(data, "message"),
+  website: getFieldValue(data, "website")
+});
 
 form.noValidate = true;
 
@@ -154,10 +164,10 @@ form.addEventListener("input", (event) => {
     label.classList.remove("has-error");
     label.querySelector(".field-error")?.remove();
   }
-  formNote.classList.remove("error");
+  formNote.classList.remove("success", "error");
 });
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!validateContactForm()) {
     formNote.textContent = "Please correct the highlighted fields before sending.";
@@ -165,7 +175,34 @@ form.addEventListener("submit", (event) => {
     return;
   }
 
-  formNote.textContent = "Thanks. Your enquiry is captured in this preview and ready to connect to email or CRM workflow.";
-  formNote.classList.add("success");
-  form.reset();
+  const endpoint = form.dataset.contactEndpoint || "/api/contact";
+  const payload = buildContactPayload(new FormData(form));
+  setFormSubmitting(true);
+  formNote.textContent = "Sending your enquiry...";
+  formNote.classList.remove("success", "error");
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || result.ok === false) {
+      throw new Error(result.error || "We could not send your enquiry. Please try again.");
+    }
+
+    formNote.textContent = "Thanks. Your enquiry has been sent. The team will get back to you shortly.";
+    formNote.classList.add("success");
+    form.reset();
+  } catch (error) {
+    formNote.textContent = error.message || "Something went wrong while sending. Please try again.";
+    formNote.classList.add("error");
+  } finally {
+    setFormSubmitting(false);
+  }
 });

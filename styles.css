@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --ink: #173633;
   --navy: #00524d;
   --navy-2: #003633;
@@ -115,17 +115,31 @@ button, input, select, textarea { font: inherit; }
 
 .site-nav a {
   padding: 9px 10px;
+  border: 1px solid transparent;
   border-radius: var(--radius);
   color: #315752;
   font-size: 0.94rem;
   font-weight: 700;
-  transition: background 160ms ease, color 160ms ease;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
 }
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
   background: var(--soft-blue);
   outline: none;
+}
+
+.site-nav .nav-pdf {
+  color: var(--navy);
+  background: rgba(255, 255, 255, 0.76);
+  border-color: rgba(217, 233, 227, 0.96);
+}
+
+.site-nav .nav-pdf:hover,
+.site-nav .nav-pdf:focus-visible {
+  color: var(--navy);
+  background: var(--white);
+  border-color: rgba(213, 164, 58, 0.42);
 }
 
 .site-nav .nav-cta {
@@ -1431,6 +1445,30 @@ p {
   font-weight: 700;
 }
 
+
+.contact-email {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 22px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.contact-email:hover,
+.contact-email:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.18);
+}
+
 .contact-form {
   display: grid;
   gap: 16px;
@@ -1543,13 +1581,15 @@ p {
 
 .reveal {
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 650ms ease, transform 650ms ease;
+  transform: translateY(32px) scale(0.985);
+  filter: blur(5px);
+  transition: opacity 950ms var(--ease), transform 950ms var(--ease), filter 950ms ease;
 }
 
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
+  filter: blur(0);
 }
 
 @media (max-width: 1040px) {
@@ -1723,3 +1763,19 @@ p {
     transform: none;
   }
 }
+.honeypot-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.contact-form button[disabled] {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+

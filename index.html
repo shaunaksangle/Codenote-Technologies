@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -26,6 +26,7 @@
       <a href="#industries">Industries</a>
       <a href="#compliance">Compliance</a>
       <a href="#faq">FAQ</a>
+      <a href="assets/codenote-technologies-presentation.pdf" class="nav-pdf" download>Deck PDF</a>
       <a href="#contact" class="nav-cta">Contact</a>
     </nav>
   </header>
@@ -539,8 +540,9 @@
             <span>Data-driven strategy</span>
             <span>Domain-led execution</span>
           </div>
+          <a class="contact-email" href="mailto:info@codenotex.com">info@codenotex.com</a>
         </div>
-        <form class="contact-form reveal" data-contact-form>
+        <form class="contact-form reveal" data-contact-form data-contact-endpoint="/api/contact">
           <label>
             <span>Name</span>
             <input type="text" name="name" placeholder="Your name" minlength="2" required>
@@ -550,8 +552,8 @@
             <input type="email" name="email" placeholder="name@company.com" required>
           </label>
           <label>
-            <span>Company</span>
-            <input type="text" name="company" placeholder="Company or institution" minlength="2" required>
+            <span>Company (optional)</span>
+            <input type="text" name="company" placeholder="Company or institution">
           </label>
           <label>
             <span>Phone</span>
@@ -559,7 +561,7 @@
           </label>
           <label>
             <span>Requirement</span>
-            <select name="requirement" required>
+            <select name="requirement">
               <option value="">Select a focus area</option>
               <option>Collections platform</option>
               <option>Calling as a Service</option>
@@ -570,10 +572,13 @@
           </label>
           <label>
             <span>Message</span>
-            <textarea name="message" rows="4" minlength="10" placeholder="Tell us what you want to improve" required></textarea>
+            <textarea name="message" rows="4" placeholder="Share a short message or question" required></textarea>
           </label>
-          <button class="btn primary full" type="submit">Send enquiry</button>
-          <p class="form-note" data-form-note>Form preview only. Connect this to your email or CRM before publishing.</p>
+          <label class="honeypot-field" aria-hidden="true">
+            <span>Leave this field empty</span>
+            <input type="text" name="website" tabindex="-1" autocomplete="off">
+          </label>          <button class="btn primary full" type="submit">Send enquiry</button>
+          <p class="form-note" data-form-note>Submit the form and the team will receive your enquiry by email.</p>
         </form>
       </div>
     </section>
@@ -593,3 +598,7 @@
   <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
